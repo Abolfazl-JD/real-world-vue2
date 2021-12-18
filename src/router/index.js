@@ -13,7 +13,7 @@ const routes = [
     component: EventList,
   },
   {
-    path: '/event/:id',
+    path: '/events/:id',
     name: 'event-show',
     component: EventShow,
     props: true,
