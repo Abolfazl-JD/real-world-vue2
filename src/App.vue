@@ -1,16 +1,24 @@
 <template>
   <div id="app">
     <Navbar />
+    <NotificationBar v-if="notifications.length" />
     <router-view :key="$route.fullPath" />
   </div>
 </template>
 
 <script>
 import Navbar from '@/components/Navbar.vue'
+import NotificationBar from '@/components/NotificationBar'
+import { mapState } from 'vuex'
 
 export default {
   components: {
     Navbar,
+    NotificationBar,
+  },
+
+  computed: {
+    ...mapState('notifications', ['notifications']),
   },
 }
 </script>

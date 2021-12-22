@@ -48,10 +48,6 @@ export default {
   computed: {
     ...mapState(['event']),
   },
-
-  created() {
-    this.$store.dispatch('fetchEvent', this.id)
-  },
 }
 </script>
 

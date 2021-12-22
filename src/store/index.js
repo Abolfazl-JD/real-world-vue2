@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import EventService from '@/services/EventService.js'
+import * as notifications from './modules/notifications'
 
 Vue.use(Vuex)
 
@@ -35,41 +36,65 @@ export default new Vuex.Store({
   },
 
   actions: {
-    createEvent({ commit }, event) {
-      EventService.API_post(event)
+    createEvent({ commit, dispatch }, event) {
+      return EventService.API_post(event)
         .then(() => {
           commit('ADD_EVENT', event)
+          const notification = {
+            type: 'Success',
+            message: 'Your event has been successfully created ',
+          }
+          dispatch('notifications/add', notification, { root: true })
         })
-        .catch((err) => console.log('there has been an error', err.response))
+        .catch((error) => {
+          const notification = {
+            type: 'Error',
+            message: 'there was a problem creating your event : ',
+          }
+          dispatch('notifications/add', notification, { root: true })
+          throw error
+        })
     },
-    fetchEvents({ commit }, { perPage, page }) {
-      EventService.API_get(perPage, page)
+
+    fetchEvents({ commit, dispatch }, { perPage, page }) {
+      return EventService.API_get(perPage, page)
         .then((res) => {
           commit('SET_EVENTS', res.data)
           commit('SET_TOTAL_EVENTS', Number(res.headers['x-total-count']))
         })
         .catch((err) => {
-          console.log('there is an error', err.response)
+          const notification = {
+            type: 'Error',
+            message: 'there was a problem fetching events : ' + err.message,
+          }
+          dispatch('notifications/add', notification, { root: true })
         })
     },
-    fetchEvent({ commit, getters }, id) {
+
+    fetchEvent({ commit, getters, dispatch }, id) {
       const event = getters.getEventById(id)
 
       if (event) {
         commit('SET_EVENT', event)
       } else {
-        EventService.API_getEvent(id)
+        return EventService.API_getEvent(id)
           .then((res) => {
             commit('SET_EVENT', res.data)
           })
           .catch((err) => {
-            console.log(err.response)
+            const notification = {
+              type: 'Error',
+              message: 'there was a problem fetching event : ' + err.message,
+            }
+            dispatch('notifications/add', notification, { root: true })
           })
       }
     },
   },
 
-  modules: {},
+  modules: {
+    notifications,
+  },
 
   getters: {
     getEventById: (state) => (id) => {

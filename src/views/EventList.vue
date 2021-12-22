@@ -26,6 +26,18 @@
 <script>
 import EventCard from '@/components/EventCard.vue'
 import { mapState } from 'vuex'
+import Store from '@/store/index.js'
+
+function getData(routeTo, next) {
+  const currentPage = Number(routeTo.query.page) || 1
+
+  Store.dispatch('fetchEvents', {
+    perPage: 3,
+    page: currentPage,
+  }).then(() => {
+    next()
+  })
+}
 
 export default {
   components: {
@@ -39,11 +51,11 @@ export default {
     },
   },
 
-  created() {
-    this.$store.dispatch('fetchEvents', {
-      perPage: 3,
-      page: this.page,
-    })
+  beforeRouteEnter(routeTo, routeFrom, next) {
+    getData(routeTo, next)
+  },
+  beforeRouteUpdate(routeTo, routeFrom, next) {
+    getData(routeTo, next)
   },
 }
 </script>
