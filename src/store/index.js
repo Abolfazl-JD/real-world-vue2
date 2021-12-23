@@ -71,23 +71,15 @@ export default new Vuex.Store({
         })
     },
 
-    fetchEvent({ commit, getters, dispatch }, id) {
+    fetchEvent({ commit, getters }, id) {
       const event = getters.getEventById(id)
 
       if (event) {
         commit('SET_EVENT', event)
       } else {
-        return EventService.API_getEvent(id)
-          .then((res) => {
-            commit('SET_EVENT', res.data)
-          })
-          .catch((err) => {
-            const notification = {
-              type: 'Error',
-              message: 'there was a problem fetching event : ' + err.message,
-            }
-            dispatch('notifications/add', notification, { root: true })
-          })
+        return EventService.API_getEvent(id).then((res) => {
+          commit('SET_EVENT', res.data)
+        })
       }
     },
   },

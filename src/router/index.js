@@ -5,6 +5,8 @@ import EventList from '../views/EventList.vue'
 import EventShow from '../views/EventShow.vue'
 import NProgress from 'nprogress'
 import Store from '@/store/index'
+import NotFound from '@/views/NotFound.vue'
+import NetworkIssue from '@/views/NetworkIssue.vue'
 
 Vue.use(VueRouter)
 
@@ -20,9 +22,17 @@ const routes = [
     component: EventShow,
     props: true,
     beforeEnter(routeTo, routeFrom, next) {
-      Store.dispatch('fetchEvent', routeTo.params.id).then(() => {
-        next()
-      })
+      Store.dispatch('fetchEvent', routeTo.params.id)
+        .then(() => {
+          next()
+        })
+        .catch((error) => {
+          if (error.response?.status == '404') {
+            next({ name: 'error-page', params: { resource: 'Event' } })
+          } else {
+            next({ name: 'network-issue' })
+          }
+        })
     },
   },
   {
@@ -33,6 +43,21 @@ const routes = [
   {
     path: '/event/create-for-us',
     redirect: { name: 'event-create' },
+  },
+  {
+    path: '/404',
+    name: 'error-page',
+    component: NotFound,
+    props: true,
+  },
+  {
+    path: '/network-issue',
+    name: 'network-issue',
+    component: NetworkIssue,
+  },
+  {
+    path: '*',
+    redirect: { name: 'error-page', params: { resource: 'Page' } },
   },
 ]
 
